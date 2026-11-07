@@ -1,6 +1,6 @@
-import { useState } from 'react'
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
+import heroBackground from './hero.jpg'
 import {
   AiOutlineHome,
   AiOutlineTeam,
@@ -140,33 +140,21 @@ const DashboardMockup = () => (
  * bgImage: your background image (the dark rocks one). Falls back to a dark gradient.
  * ctaTo:   where the main button goes.
  */
-const BG_SOURCES = [
-  './hero.jpg', // local file (public/images/hero-bg.jpg)
-  'https://i.pinimg.com/1200x/f0/8e/35/f08e35de6d2615759c255a7e34bcba23.jpg', // backup link
-]
 const Hero = ({
-  bgImage = BG_SOURCES[0],
+  bgImage = heroBackground,
   ctaTo = '/login',
   ctaLabel = 'Get started',
   title = 'The all-in-one platform for company assets',
   subtitle = 'Track, assign and return every asset across your team. HR approves, employees request, and nothing gets lost.',
-  sources = BG_SOURCES,
 }) => {
-  const [imageIndex, setImageIndex] = useState(0)
-
-  const currentImage = bgImage || sources[imageIndex] || BG_SOURCES[0]
-
   return (
     <section className="relative isolate overflow-hidden bg-black pt-36 text-white sm:pt-44">
       {/* Background image + overlays */}
-      {currentImage && (
+      {bgImage && (
         <img
-          src={currentImage}
+          src={bgImage}
           alt=""
           className="absolute inset-0 -z-20 h-full w-full object-cover object-bottom"
-          onError={() => {
-            setImageIndex((prevIndex) => (prevIndex + 1) % sources.length)
-          }}
         />
       )}
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black via-black/70 to-black/20" />
