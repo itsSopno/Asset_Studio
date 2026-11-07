@@ -93,6 +93,8 @@ const Navbar = () => {
   }
 
   const roleLabel = ROLE_LABEL[role]
+  // Dashboard only for logged-in users whose role is 'hr' or 'employee'
+  const canAccessDashboard = !!user && (role === 'hr' || role === 'employee')
   const activeCls = ({ isActive }) =>
     `${linkBase} ${isActive ? 'text-white' : 'text-neutral-300 hover:text-white'}`
 
@@ -156,7 +158,7 @@ const Navbar = () => {
               }
             </Dropdown>
           </li>
-          {user && (
+          {canAccessDashboard && (
             <li>
               <NavLink to="/dashboard" className={activeCls}>
                 Dashboard
@@ -215,9 +217,11 @@ const Navbar = () => {
                       )}
                     </div>
                     <div className="pt-1.5">
-                      <Link to="/dashboard" role="menuitem" onClick={close} className={menuItem}>
-                        Dashboard
-                      </Link>
+                      {canAccessDashboard && (
+                        <Link to="/dashboard" role="menuitem" onClick={close} className={menuItem}>
+                          Dashboard
+                        </Link>
+                      )}
                       {!roleLabel && (
                         <>
                           <Link to="/hr-join" role="menuitem" onClick={close} className={menuItem}>
@@ -272,7 +276,7 @@ const Navbar = () => {
               {[
                 { to: '/', label: 'Home', end: true },
                 ...AUDIENCE.map((a) => ({ to: a.to, label: `For ${a.title.toLowerCase()}` })),
-                ...(user ? [{ to: '/dashboard', label: 'Dashboard' }] : []),
+                ...(canAccessDashboard ? [{ to: '/dashboard', label: 'Dashboard' }] : []),
                 { to: '/legal', label: 'Legal' },
               ].map(({ to, label, end }) => (
                 <NavLink

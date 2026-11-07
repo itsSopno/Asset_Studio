@@ -1,108 +1,108 @@
-import { motion } from 'framer-motion'
 import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { AiOutlineCheck } from 'react-icons/ai'
 import PurchaseModal from '../Modal/PurchaseModal'
 import useAuth from '../../hooks/useAuth'
 import useRole from '../../hooks/useRole'
-import { useContext } from 'react'
-import AuthProvider from '../../providers/AuthProvider'
 
-/* ================= PLAN STYLES ================= */
-const planStyles = {
-  Basic: {
-    bg: 'from-gray-800 via-gray-700 to-gray-800',
-    button: 'from-green-500 to-teal-500 hover:from-teal-500 hover:to-green-500',
-    tagline: 'Perfect for small teams starting their asset journey.',
-  },
-  Standard: {
-    bg: 'from-purple-800 via-purple-700 to-purple-800',
-    button:
-      'from-purple-500 to-indigo-500 hover:from-indigo-500 hover:to-purple-500',
-    tagline: 'Ideal for growing teams needing advanced management.',
-  },
-  Premium: {
-    bg: 'from-blue-900 via-blue-800 to-blue-900',
-    button:
-      'from-blue-500 to-cyan-500 hover:from-cyan-500 hover:to-blue-500',
-    tagline: 'Full-suite solution for enterprises with priority support.',
-  },
+const SERIF = { fontFamily: "'Newsreader', Georgia, 'Times New Roman', serif" }
+
+const TAGLINES = {
+  Basic: 'Perfect for small teams starting their asset journey.',
+  Standard: 'Ideal for growing teams needing advanced management.',
+  Premium: 'Full-suite solution for enterprises with priority support.',
 }
 
-const PlanCard = ({ plan }) => {
-  const style = planStyles[plan.name] || planStyles.Basic
+const PlanCard = ({ plan, index = 0 }) => {
   const [purchaseOpen, setPurchaseOpen] = useState(false)
-
-  const {user,loading } = useAuth()
+  const { user, loading } = useAuth()
   const [role] = useRole()
 
   const userLimit = user?.packageLimit
-const planLimit = plan?.employeeLimit
+  const planLimit = plan?.employeeLimit
+  const featured = plan.name === 'Standard'
 
-let buttonText = 'Activate Plan'
-let disabled = false
-if (loading) {
-  buttonText = 'Loading...'
-  disabled = true
-} else if (role !== 'hr') {
-  buttonText = 'ONLY HR CAN PURCHASE'
-  disabled = true
-} else if (userLimit === planLimit) {
-  buttonText = 'ACTIVATED'
-  disabled = true
-} else if (userLimit > planLimit) {
-  buttonText = 'DOWNGRADE NOT ALLOWED'
-  disabled = true
-} else {
-  buttonText = 'UPGRADE PLAN'
-}
+  /* ---- button state (same rules as before) ---- */
+  let buttonText = 'Activate plan'
+  let disabled = false
+  let isCurrent = false
 
+  if (loading) {
+    buttonText = 'Loading…'
+    disabled = true
+  } else if (role !== 'hr') {
+    buttonText = 'Only HR can purchase'
+    disabled = true
+  } else if (userLimit === planLimit) {
+    buttonText = 'Current plan'
+    disabled = true
+    isCurrent = true
+  } else if (userLimit > planLimit) {
+    buttonText = 'Downgrade not allowed'
+    disabled = true
+  } else {
+    buttonText = 'Upgrade plan'
+  }
+
+  const buttonCls = disabled
+    ? isCurrent
+      ? 'border border-emerald-400/30 bg-emerald-500/10 text-emerald-300 cursor-default'
+      : 'border border-white/10 bg-white/5 text-neutral-500 cursor-not-allowed'
+    : featured
+    ? 'bg-white text-neutral-950 hover:bg-neutral-200'
+    : 'border border-white/15 bg-white/5 text-white hover:bg-white/10'
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className={`bg-gradient-to-tr ${style.bg} p-6 rounded-3xl shadow-2xl border border-gray-700 flex flex-col justify-between`}
+      transition={{ duration: 0.5, delay: index * 0.1, ease: 'easeOut' }}
+      className={`relative flex flex-col rounded-3xl border p-7 ${
+        featured ? 'border-white/30 bg-white/[0.06]' : 'border-white/10 bg-white/[0.03]'
+      }`}
     >
-      {/* CONTENT */}
-      <div>
-        <h2 className="text-2xl font-bold text-white mb-2">{plan.name}</h2>
-        <p className="text-gray-300 mb-2">{style.tagline}</p>
+      {featured && (
+        <span className="absolute right-6 top-6 rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-neutral-950">
+          Popular
+        </span>
+      )}
 
-        <p className="text-xl font-extrabold mb-4 text-white">
-          $ {plan.price} / month
+      <div>
+        <h2 className="text-lg font-medium text-white">{plan.name}</h2>
+        <p className="mt-2 min-h-[40px] text-sm leading-relaxed text-neutral-400">
+          {TAGLINES[plan.name] || TAGLINES.Basic}
         </p>
 
-        <ul className="text-gray-300 text-sm space-y-2 mb-6">
+        <p className="mt-6 flex items-baseline gap-1">
+          <span className="text-5xl tracking-tight text-neutral-50" style={SERIF}>
+            ${plan.price}
+          </span>
+          <span className="text-sm text-neutral-500">/ month</span>
+        </p>
+
+        <ul className="mt-7 space-y-3 border-t border-white/10 pt-7">
           {plan.features?.map((feature, i) => (
-            <li key={i}>• {feature}</li>
+            <li key={i} className="flex items-start gap-3 text-sm text-neutral-300">
+              <AiOutlineCheck size={16} className="mt-0.5 shrink-0 text-neutral-500" aria-hidden="true" />
+              {feature}
+            </li>
           ))}
         </ul>
       </div>
 
-      {/* BUTTON */}
-      <button
-        disabled={disabled}
-        onClick={!disabled ? () => setPurchaseOpen(true) : undefined}
-        className={`w-full py-3 rounded-xl text-white font-semibold transition
-          ${
-            buttonText === 'ACTIVATED'
-              ? 'bg-green-600 cursor-default'
-              : disabled
-              ? 'bg-gray-600 cursor-not-allowed'
-              : `bg-[#0f0f1c] bg-gradient-to-r ${style.button}`
-          }
-        `}
-      >
-        {buttonText}
-      </button>
+      <div className="mt-auto pt-8">
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={!disabled ? () => setPurchaseOpen(true) : undefined}
+          className={`w-full rounded-full py-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${buttonCls}`}
+        >
+          {buttonText}
+        </button>
+      </div>
 
-      {/* MODAL */}
-      <PurchaseModal
-        plan={plan}
-        isOpen={purchaseOpen}
-        closeModal={() => setPurchaseOpen(false)}
-      />
+      <PurchaseModal plan={plan} isOpen={purchaseOpen} closeModal={() => setPurchaseOpen(false)} />
     </motion.div>
   )
 }

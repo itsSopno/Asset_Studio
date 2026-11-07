@@ -1,167 +1,199 @@
-import { Link, useLocation, useNavigate } from "react-router";
-import { FcGoogle } from "react-icons/fc";
-import useAuth from "../../hooks/useAuth";
-import { toast } from "react-hot-toast";
-import { TbFidgetSpinner } from "react-icons/tb";
-import { useForm } from "react-hook-form";
-import { imageUpload, saveOrUpdateUser } from "../../utils";
+import { Link, useLocation, useNavigate } from 'react-router'
+import { FcGoogle } from 'react-icons/fc'
+import useAuth from '../../hooks/useAuth'
+import { toast } from 'react-hot-toast'
+import { TbFidgetSpinner } from 'react-icons/tb'
+import { useForm } from 'react-hook-form'
+import { motion } from 'framer-motion'
+import { imageUpload, saveOrUpdateUser } from '../../utils'
+
+const SERIF = { fontFamily: "'Newsreader', Georgia, 'Times New Roman', serif" }
+
+const inputCls =
+  'w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-neutral-600 transition-colors focus:border-white/30 focus:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20 aria-[invalid=true]:border-red-400/60'
+const labelCls = 'mb-1.5 block text-sm font-medium text-neutral-300'
+
+const FieldError = ({ id, error }) =>
+  error ? (
+    <p id={id} role="alert" className="mt-1.5 text-xs text-red-400">
+      {error.message}
+    </p>
+  ) : null
 
 const SignUp = () => {
-  const { createUser, updateUserProfile, signInWithGoogle, loading } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state || "/";
+  const { createUser, updateUserProfile, signInWithGoogle, loading } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state || '/'
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm()
 
   const onSubmit = async (data) => {
-    const { name, image, email, password } = data;
-    const imageFile = image[0];
+    const { name, image, email, password } = data
+    const imageFile = image[0]
 
     try {
-      const imageURL = await imageUpload(imageFile);
-      const result = await createUser(email, password);
-      await saveOrUpdateUser({ name, email, image: imageURL });
-      await updateUserProfile(name, imageURL);
+      const imageURL = await imageUpload(imageFile)
+      await createUser(email, password)
+      await saveOrUpdateUser({ name, email, image: imageURL })
+      await updateUserProfile(name, imageURL)
 
-      navigate(from, { replace: true });
-      toast.success("Signup Successful");
+      navigate(from, { replace: true })
+      toast.success('Signup Successful')
     } catch (err) {
-      toast.error(err?.message || "Signup failed");
+      toast.error(err?.message || 'Signup failed')
     }
-  };
+  }
 
   const handleGoogleSignIn = async () => {
     try {
-      const { user } = await signInWithGoogle();
+      const { user } = await signInWithGoogle()
       await saveOrUpdateUser({
         name: user?.displayName,
         email: user?.email,
         image: user?.photoURL,
-      });
-      navigate(from, { replace: true });
-      toast.success("Signup Successful");
+      })
+      navigate(from, { replace: true })
+      toast.success('Signup Successful')
     } catch (err) {
-      toast.error(err?.message);
+      toast.error(err?.message)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f0f1c] p-6 relative">
-      {/* Background Decor */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 pointer-events-none" />
+    <div className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-black px-4 py-24">
+      {/* Soft warm glow, same as the hero */}
+      <div className="absolute -right-40 top-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-orange-900/20 blur-[140px]" />
 
-      <div className="w-full max-w-lg bg-[#0f0f1c] p-8 md:p-10 rounded-2xl border border-white/10 shadow-2xl relative z-10 text-white">
-        {/* HEADER */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="w-full max-w-lg rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-white backdrop-blur-xl sm:p-10"
+      >
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white">
-            Create Your Account
+          <h1 className="text-4xl tracking-tight text-neutral-50" style={SERIF}>
+            Create your account
           </h1>
-          <p className="text-gray-400 text-sm mt-2">
-            Join the AssetVerse ecosystem
-          </p>
+          <p className="mt-2 text-sm text-neutral-400">Join AssetVerse and start managing assets</p>
         </div>
 
-        {/* FORM */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-          {/* NAME */}
           <div>
-            <label className="text-sm font-medium text-gray-300 mb-1 block">Full Name</label>
+            <label htmlFor="name" className={labelCls}>
+              Full name
+            </label>
             <input
+              id="name"
               type="text"
-              placeholder="Enter your name"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl outline-none focus:border-indigo-500 transition-all"
-              {...register("name", { required: "Name is required" })}
+              autoComplete="name"
+              placeholder="Your name"
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? 'name-error' : undefined}
+              className={inputCls}
+              {...register('name', { required: 'Name is required' })}
             />
-            {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
+            <FieldError id="name-error" error={errors.name} />
           </div>
 
-          {/* IMAGE */}
           <div>
-            <label className="text-sm font-medium text-gray-300 mb-1 block">Profile Image</label>
+            <label htmlFor="image" className={labelCls}>
+              Profile image
+            </label>
             <input
+              id="image"
               type="file"
               accept="image/*"
-              className="w-full text-sm bg-white/5 rounded-xl border border-white/10 p-2.5 cursor-pointer file:bg-indigo-600 file:text-white file:border-none file:px-4 file:py-1.5 file:rounded-lg file:mr-4"
-              {...register("image", { required: "Image is required" })}
+              aria-invalid={!!errors.image}
+              aria-describedby={errors.image ? 'image-error' : undefined}
+              className={`${inputCls} cursor-pointer p-2 text-neutral-400 file:mr-4 file:cursor-pointer file:rounded-full file:border-none file:bg-white file:px-4 file:py-1.5 file:text-xs file:font-medium file:text-neutral-950 hover:file:bg-neutral-200`}
+              {...register('image', { required: 'Image is required' })}
             />
-            {errors.image && <p className="text-red-400 text-xs mt-1">{errors.image.message}</p>}
+            <FieldError id="image-error" error={errors.image} />
           </div>
 
-          {/* EMAIL */}
           <div>
-            <label className="text-sm font-medium text-gray-300 mb-1 block">Email Address</label>
+            <label htmlFor="email" className={labelCls}>
+              Email address
+            </label>
             <input
+              id="email"
               type="email"
-              placeholder="Enter your email"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl outline-none focus:border-indigo-500 transition-all"
-              {...register("email", { 
-                required: "Email is required",
-                pattern: { value: /^\S+@\S+$/i, message: "Invalid email" }
+              autoComplete="email"
+              placeholder="you@company.com"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : undefined}
+              className={inputCls}
+              {...register('email', {
+                required: 'Email is required',
+                pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' },
               })}
             />
-            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
+            <FieldError id="email-error" error={errors.email} />
           </div>
 
-          {/* PASSWORD */}
           <div>
-            <label className="text-sm font-medium text-gray-300 mb-1 block">Password</label>
+            <label htmlFor="password" className={labelCls}>
+              Password
+            </label>
             <input
+              id="password"
               type="password"
-              placeholder="••••••••"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl outline-none focus:border-indigo-500 transition-all"
-              {...register("password", { 
-                required: "Password is required",
-                minLength: { value: 6, message: "Minimum 6 characters" }
+              autoComplete="new-password"
+              placeholder="At least 6 characters"
+              aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? 'password-error' : undefined}
+              className={inputCls}
+              {...register('password', {
+                required: 'Password is required',
+                minLength: { value: 6, message: 'Minimum 6 characters' },
               })}
             />
-            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
+            <FieldError id="password-error" error={errors.password} />
           </div>
 
-          {/* CREATE ACCOUNT BUTTON */}
           <button
             disabled={loading}
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex w-full items-center justify-center rounded-full bg-white py-3 text-sm font-medium text-neutral-950 transition-colors hover:bg-neutral-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? <TbFidgetSpinner className="animate-spin mx-auto" size={24} /> : "CREATE ACCOUNT"}
+            {loading ? <TbFidgetSpinner className="animate-spin" size={20} /> : 'Create account'}
           </button>
         </form>
 
-        {/* OR LINE */}
-        <div className="flex items-center space-x-3 my-7">
-          <div className="flex-1 h-px bg-white/10" />
-          <p className="text-gray-500 text-xs font-bold uppercase">OR</p>
-          <div className="flex-1 h-px bg-white/10" />
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="text-xs text-neutral-500">or</span>
+          <div className="h-px flex-1 bg-white/10" />
         </div>
 
-        {/* GOOGLE BUTTON */}
         <button
+          type="button"
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 py-3 border border-white/10 bg-white/5 rounded-xl hover:bg-white/10 transition-all font-medium cursor-pointer"
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-3 rounded-full border border-white/10 bg-white/5 py-3 text-sm font-medium text-neutral-100 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <FcGoogle size={24} />
-          <span>Continue with Google</span>
+          <FcGoogle size={20} />
+          Continue with Google
         </button>
 
-        {/* LOGIN LINK */}
-        <p className="text-center text-gray-400 text-sm mt-8">
-          Already have an account?{" "}
+        <p className="mt-8 text-center text-sm text-neutral-400">
+          Already have an account?{' '}
           <Link
             to="/login"
             state={from}
-            className="text-indigo-400 font-bold hover:underline"
+            className="font-medium text-white underline-offset-4 transition-colors hover:underline"
           >
-            Login
+            Log in
           </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
-  );
-};
+  )
+}
 
-export default SignUp;
+export default SignUp

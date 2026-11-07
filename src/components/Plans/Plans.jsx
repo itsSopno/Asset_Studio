@@ -1,9 +1,11 @@
-import Container from '../Shared/Container'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import { motion } from 'framer-motion'
+import Container from '../Shared/Container'
 import LoadingSpinner from '../Shared/LoadingSpinner'
 import PlanCard from '../PlanCard/PlanCard'
-import { motion } from 'framer-motion'
+
+const SERIF = { fontFamily: "'Newsreader', Georgia, 'Times New Roman', serif" }
 
 const fetchPlans = async () => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/plans`)
@@ -29,66 +31,43 @@ const PlansPage = () => {
 
   if (isError) {
     return (
-      <div className="text-center text-red-500 py-20">
+      <div className="bg-black px-4 py-32 text-center text-sm text-red-400">
         Failed to load plans: {error.message}
       </div>
     )
   }
 
   return (
-    <div className="relative h-auto bg-[#0f0f1c] py-16 overflow-hidden">
-      {/* Background Effects */}
-      <motion.div
-        className="absolute w-[400px] h-[400px] bg-indigo-500/30 blur-[200px] rounded-full top-10 left-10"
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 2 }}
-      />
-      <motion.div
-        className="absolute w-[300px] h-[300px] bg-pink-500/20 blur-[150px] rounded-full bottom-10 right-10"
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 2 }}
-      />
+    <div className="relative isolate overflow-hidden bg-black px-4 pb-24 pt-32 text-white sm:px-6">
+      <div className="absolute -left-40 top-20 -z-10 h-[500px] w-[500px] rounded-full bg-orange-900/20 blur-[140px]" />
 
-      <Container className="relative z-10">
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-extrabold text-white mb-4 text-center"
-        >
-          Build Your Asset Universe
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-gray-300 text-center mb-12 max-w-2xl mx-auto"
-        >
-          From small teams to enterprises, AssetVerse equips you with the tools to
-          track, grow, and secure your assets efficiently.
-        </motion.p>
-
+      <Container>
         <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={{
-            visible: { transition: { staggerChildren: 0.2 } },
-          }}
-          className="flex flex-wrap justify-center gap-8"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="mx-auto max-w-2xl text-center"
         >
-          {plans.length === 0 ? (
-            <p className="text-gray-400 text-center">
-              No plans available.
-            </p>
-          ) : (
-            plans.map(plan => (
-              <PlanCard key={plan._id} plan={plan} />
-            ))
-          )}
+          <span className="inline-block rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-neutral-300">
+            Pricing
+          </span>
+          <h1 className="mt-5 text-4xl leading-tight tracking-tight text-neutral-50 sm:text-5xl" style={SERIF}>
+            Plans that grow with your team
+          </h1>
+          <p className="mt-5 text-sm leading-relaxed text-neutral-400 sm:text-[15px]">
+            From small teams to enterprises, AssetVerse gives you the tools to track, manage and secure your assets.
+          </p>
         </motion.div>
+
+        {plans.length === 0 ? (
+          <p className="mt-16 text-center text-sm text-neutral-500">No plans available.</p>
+        ) : (
+          <div className="mx-auto mt-14 grid max-w-5xl gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {plans.map((plan, i) => (
+              <PlanCard key={plan._id} plan={plan} index={i} />
+            ))}
+          </div>
+        )}
       </Container>
     </div>
   )
