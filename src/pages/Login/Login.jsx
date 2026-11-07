@@ -7,6 +7,11 @@ import { TbFidgetSpinner } from 'react-icons/tb'
 import { saveOrUpdateUser } from '../../utils'
 import { motion } from 'framer-motion'
 
+const SERIF = { fontFamily: "'Newsreader', Georgia, 'Times New Roman', serif" }
+
+const inputCls =
+  'w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-neutral-600 transition-colors focus:border-white/30 focus:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20'
+
 const Login = () => {
   const { signIn, signInWithGoogle, loading, user, setLoading } = useAuth()
   const navigate = useNavigate()
@@ -17,7 +22,7 @@ const Login = () => {
   if (loading) return <LoadingSpinner />
   if (user) return <Navigate to={from} replace={true} />
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const email = e.target.email.value
     const password = e.target.password.value
@@ -57,154 +62,84 @@ const Login = () => {
   }
 
   return (
-    <div
-      className="
-        relative flex justify-center items-center min-h-screen 
-        bg-[#0f0f1c]
-        border-r border-indigo-500/20 
-        shadow-[0_0_40px_rgba(80,80,255,0.35)]
-        before:absolute before:inset-0 
-        before:bg-gradient-to-b before:from-white/10 before:to-transparent
-        before:blur-[90px] before:opacity-20 before:pointer-events-none
-        px-4
-      "
-    >
-      {/* 🔥 Floating Heading */}
+    <div className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-black px-4 py-24">
+      {/* Soft warm glow, same as the hero */}
+      <div className="absolute -left-40 top-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-orange-900/20 blur-[140px]" />
+
       <motion.div
-        initial={{ opacity: 0, y: -40 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-        className="absolute top-10 text-center"
-      >
-        <h1 className="text-5xl font-extrabold tracking-wide 
-          bg-gradient-to-r from-indigo-300 to-lime-300 
-          bg-clip-text text-transparent 
-          drop-shadow-[0_0_35px_rgba(120,120,255,0.8)]
-          animate-pulse
-        ">
-          Welcome Back
-        </h1>
-      </motion.div>
-
-      {/* 🔥 Main Card (3D Hover) */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8, y: 60 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        whileHover={{
-          scale: 1.03,
-          rotateX: 6,
-          rotateY: -6,
-          boxShadow:
-            '0px 0px 60px rgba(120,120,255,0.5), 0 0 120px rgba(80,80,255,0.3)',
-        }}
-        className="
-          relative w-full max-w-md 
-          bg-white/10 backdrop-blur-xl 
-          text-white rounded-2xl p-8 
-          shadow-xl border border-white/10 
-          mt-32 transition-all duration-300
-        "
+        className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-white backdrop-blur-xl sm:p-10"
       >
-        <p className="text-center text-gray-300 -mt-2 mb-6 text-sm">
-          Sign in to your account
-        </p>
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl tracking-tight text-neutral-50" style={SERIF}>
+            Welcome back
+          </h1>
+          <p className="mt-2 text-sm text-neutral-400">Sign in to your account</p>
+        </div>
 
-        {/* ✨ Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* Email */}
-          <div className="group">
-            <label className="text-sm mb-2 block">Email Address</label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-300">
+              Email address
+            </label>
             <input
+              id="email"
               type="email"
               name="email"
+              autoComplete="email"
               required
-              placeholder="example@mail.com"
-              className="
-                w-full px-4 py-3 rounded-lg 
-                bg-gray-800/60 border border-gray-700 
-                focus:border-indigo-400 
-                focus:outline-none text-gray-100
-                group-hover:shadow-[0_0_20px_rgba(120,120,255,0.4)]
-                transition
-              "
+              placeholder="you@company.com"
+              className={inputCls}
             />
           </div>
 
-          {/* Password */}
-          <div className="group">
-            <label className="text-sm mb-2 block">Password</label>
+          <div>
+            <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-neutral-300">
+              Password
+            </label>
             <input
+              id="password"
               type="password"
               name="password"
+              autoComplete="current-password"
               required
-              placeholder="•••••••"
-              className="
-                w-full px-4 py-3 rounded-lg 
-                bg-gray-800/60 border border-gray-700 
-                focus:border-indigo-400 
-                focus:outline-none text-gray-100
-                group-hover:shadow-[0_0_20px_rgba(120,120,255,0.4)]
-                transition
-              "
+              placeholder="••••••••"
+              className={inputCls}
             />
           </div>
 
-          {/* Button */}
           <button
             type="submit"
-            className="
-              w-full py-3 rounded-lg 
-              bg-indigo-500 hover:bg-indigo-600 
-              text-white font-semibold shadow-lg 
-              transition shadow-[0_0_20px_rgba(120,120,255,0.3)]
-            "
+            disabled={loading}
+            className="flex w-full items-center justify-center rounded-full bg-white py-3 text-sm font-medium text-neutral-950 transition-colors hover:bg-neutral-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? (
-              <TbFidgetSpinner className="animate-spin m-auto" />
-            ) : (
-              'Continue'
-            )}
+            {loading ? <TbFidgetSpinner className="animate-spin" size={20} /> : 'Continue'}
           </button>
         </form>
 
-        {/* Forgot Password */}
-        <div className="mt-3 text-right">
-          <button className="text-sm text-gray-300 hover:text-indigo-400 transition">
-            Forgot password?
-          </button>
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="text-xs text-neutral-500">or</span>
+          <div className="h-px flex-1 bg-white/10" />
         </div>
 
-        {/* Divider */}
-        <div className="flex items-center my-6">
-          <div className="flex-1 border-t border-gray-700" />
-          <span className="px-3 text-sm text-gray-400">OR</span>
-          <div className="flex-1 border-t border-gray-700" />
-        </div>
-
-        {/* Google */}
-        <motion.div
+        <button
+          type="button"
           onClick={handleGoogleSignIn}
-          whileHover={{ scale: 1.03 }}
-          className="
-            flex items-center justify-center gap-3 
-            border border-gray-700 rounded-lg py-3 
-            cursor-pointer hover:bg-gray-800 
-            transition shadow-[0_0_20px_rgba(120,120,255,0.3)]
-          "
+          className="flex w-full items-center justify-center gap-3 rounded-full border border-white/10 bg-white/5 py-3 text-sm font-medium text-neutral-100 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
         >
-          <FcGoogle size={30} />
-          <p className="text-gray-200">Continue with Google</p>
-        </motion.div>
+          <FcGoogle size={20} />
+          Continue with Google
+        </button>
 
-        {/* Signup */}
-        <p className="text-center text-sm mt-6 text-gray-300">
-          Don’t have an account?{' '}
+        <p className="mt-8 text-center text-sm text-neutral-400">
+          Don&rsquo;t have an account?{' '}
           <Link
             to="/signup"
             state={from}
-            className="text-indigo-400 hover:text-indigo-300 underline transition"
+            className="font-medium text-white underline-offset-4 transition-colors hover:underline"
           >
             Sign up
           </Link>
