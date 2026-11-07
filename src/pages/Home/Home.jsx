@@ -35,7 +35,7 @@ const Home = () => {
       <LenisScroll />
 
       {/* ULTRA PREMIUM HERO */}
-      <motion.section
+      {/* <motion.section
         className="
           relative w-full h-[90vh] flex flex-col justify-center items-center
           rounded-tr-4xl rounded-tl-4xl overflow-hidden px-6
@@ -64,7 +64,7 @@ const Home = () => {
         >
           The next evolution of digital asset intelligence — premium ecosystem for the modern era.
         </motion.p>
-      </motion.section>
+      </motion.section> */}
 
      
       <AssetVerseHero />

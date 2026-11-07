@@ -1,23 +1,89 @@
-import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai'
-import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router'
-import useAuth from '../../../hooks/useAuth'
-import avatarImg from '../../../assets/images/placeholder.jpg'
+import { AiOutlineMenu, AiOutlineClose, AiOutlineDown } from 'react-icons/ai'
+import { useState, useEffect, useRef } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
-import './nav.css'
+import useAuth from '../../../hooks/useAuth'
 import useRole from '../../../hooks/useRole'
+import avatarImg from '../../../assets/images/placeholder.jpg'
+import './nav.css'
+
+const ROLE_LABEL = { hr: 'HR Manager', employee: 'Employee' }
+
+const AUDIENCE = [
+  { to: '/hr-join', title: 'HR managers', desc: 'Add assets and approve requests' },
+  { to: '/join', title: 'Employees', desc: 'Request and return assets' },
+]
+
+const LogoMark = () => (
+  <svg width="28" height="28" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="16" cy="16" r="13" />
+    <path d="M16 8 8.5 12v0L16 16l7.5-4L16 8Z" />
+    <path d="m8.5 16 7.5 4 7.5-4" />
+    <path d="m8.5 20 7.5 4 7.5-4" />
+  </svg>
+)
+
+/* Dark dropdown: closes on outside click / Esc */
+const Dropdown = ({ trigger, children, position = 'right', width = 'w-64' }) => {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onClick = (e) => ref.current && !ref.current.contains(e.target) && setOpen(false)
+    const onKey = (e) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('mousedown', onClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  const pos = position === 'center' ? 'left-1/2 -translate-x-1/2' : position === 'left' ? 'left-0' : 'right-0'
+
+  return (
+    <div className="relative" ref={ref}>
+      {trigger({ open, toggle: () => setOpen((v) => !v) })}
+      <div className={`absolute top-full z-10 pt-3 ${pos} ${width}`}>
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              role="menu"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
+              className="overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/95 p-1.5 shadow-2xl backdrop-blur-xl"
+            >
+              {children(() => setOpen(false))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  )
+}
+
+const linkBase =
+  'rounded-full px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60'
+const menuItem =
+  'block w-full rounded-xl px-3 py-2.5 text-left text-sm text-neutral-200 transition-colors hover:bg-white/5'
+const pill =
+  'inline-flex items-center rounded-full bg-neutral-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60'
 
 const Navbar = () => {
   const { user, logOut } = useAuth()
-  const [isOpen, setIsOpen] = useState(false)
-  const [scrollY, setScrollY] = useState(0)
   const [role] = useRole()
   const navigate = useNavigate()
+  const [isOpen, setIsOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   const handleLogout = () => {
@@ -26,135 +92,239 @@ const Navbar = () => {
     navigate('/')
   }
 
+  const roleLabel = ROLE_LABEL[role]
+  const activeCls = ({ isActive }) =>
+    `${linkBase} ${isActive ? 'text-white' : 'text-neutral-300 hover:text-white'}`
+
   return (
-    <motion.nav
-      initial={{ y: -60, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.7, ease: 'easeOut' }}
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        scrollY > 60
-          ? 'bg-[#0b0b15]/90 backdrop-blur-xl border-b border-white/10 shadow-lg py-2'
-          : 'bg-transparent py-5'
-      }`}
-    >
-      <div className="w-full px-4 md:px-12">
-        <div className="flex items-center justify-between h-16">
-          
-          {/* LEFT: LOGO & DESKTOP LINKS */}
-          <div className="flex items-center gap-12">
-            <motion.div whileHover={{ scale: 1.05 }} className="flex-shrink-0">
-              <Link
-                to="/"
-                className="text-xl md:text-2xl font-extrabold tracking-[0.2em] md:tracking-[0.3em] bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_0_18px_rgba(255,255,255,0.25)]"
-              >
-                ASSET<span className="text-indigo-400">VERSE</span>
-              </Link>
-            </motion.div>
+    <header className="fixed inset-x-0 top-3 z-50 px-3 md:px-6">
+      {/* The pill only appears after scrolling; content never shifts */}
+      <nav
+        aria-label="Main"
+        className={`relative mx-auto flex h-[60px] max-w-[1480px] items-center justify-between rounded-full border px-4 transition-all duration-300 md:px-4 ${
+          scrolled
+            ? 'border-white/10 bg-neutral-950/70 shadow-lg shadow-black/30 backdrop-blur-xl'
+            : 'border-transparent bg-transparent'
+        }`}
+      >
+        {/* Logo */}
+        <Link
+          to="/"
+          aria-label="AssetVerse home"
+          className="flex items-center gap-2 rounded-full pl-1 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+        >
+          <LogoMark />
+          <span
+            className="text-[26px] leading-none tracking-tight"
+            style={{ fontFamily: "'Newsreader', Georgia, 'Times New Roman', serif" }}
+          >
+            assetverse
+          </span>
+        </Link>
 
-            {/* DESKTOP MENU */}
-            <ul className="hidden lg:flex items-center gap-8 text-sm font-semibold tracking-widest text-white/80">
-              <li><Link className="hover:text-white transition-colors" to="/">HOME</Link></li>
-              {user && <li><Link className="hover:text-white transition-colors" to="/dashboard">DASHBOARD</Link></li>}
-            </ul>
-          </div>
+        {/* Centered links */}
+        <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex">
+          <li>
+            <NavLink to="/" end className={activeCls}>
+              Home
+            </NavLink>
+          </li>
+          <li>
+            <Dropdown
+              position="center"
+              width="w-72"
+              trigger={({ open, toggle }) => (
+                <button
+                  type="button"
+                  onClick={toggle}
+                  aria-haspopup="menu"
+                  aria-expanded={open}
+                  className={`${linkBase} flex items-center gap-1 ${open ? 'text-white' : 'text-neutral-300 hover:text-white'}`}
+                >
+                  Who&rsquo;s it for
+                  <AiOutlineDown size={10} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+                </button>
+              )}
+            >
+              {(close) =>
+                AUDIENCE.map((a) => (
+                  <Link key={a.to} to={a.to} role="menuitem" onClick={close} className={menuItem}>
+                    <span className="block font-medium text-white">{a.title}</span>
+                    <span className="block text-xs text-neutral-400">{a.desc}</span>
+                  </Link>
+                ))
+              }
+            </Dropdown>
+          </li>
+          {user && (
+            <li>
+              <NavLink to="/dashboard" className={activeCls}>
+                Dashboard
+              </NavLink>
+            </li>
+          )}
+          <li>
+            <NavLink to="/legal" className={activeCls}>
+              Legal
+            </NavLink>
+          </li>
+        </ul>
 
-          {/* RIGHT: USER ACTIONS */}
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="hidden md:flex items-center gap-5">
-              {user ? (
-                <>
-                  <div className="flex items-center gap-3">
-                    {/* Role Condition Logic */}
-                    {role === 'hr' ? (
-                      <span className="text-[10px] font-bold text-indigo-400 border border-indigo-400/40 px-3 py-1 rounded-full tracking-tighter uppercase">
-                        You Are HR
-                      </span>
-                    ) : role === 'employee' ? (
-                      <span className="text-[10px] font-bold text-green-400 border border-green-400/40 px-3 py-1 rounded-full tracking-tighter uppercase">
-                        You Are Employee
-                      </span>
-                    ) : (
-                      /* If user is logged in but has no role yet */
-                      <div className="flex gap-2">
-                        <Link to="/hr-join" className="text-xs font-bold bg-indigo-600 px-5 py-2 rounded-full text-white hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20">
-                          Join as HR
-                        </Link>
-                        <Link to="/join" className="text-xs font-bold bg-white/5 border border-white/10 px-5 py-2 rounded-full text-white hover:bg-white/10 transition-all">
-                          Join as Employee
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <button onClick={handleLogout} className="text-xs font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-widest">
-                    Logout
+        {/* Right */}
+        <div className="flex items-center gap-2">
+          {!user && (
+            <Link to="/login" className={`${pill} hidden md:inline-flex`}>
+              Get started
+            </Link>
+          )}
+
+          {user && (
+            <div className="hidden md:block">
+              <Dropdown
+                width="w-64"
+                trigger={({ open, toggle }) => (
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    aria-haspopup="menu"
+                    aria-expanded={open}
+                    className="flex items-center gap-2 rounded-full bg-neutral-800 py-1 pl-1 pr-3 transition-colors hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  >
+                    <img
+                      className="h-8 w-8 rounded-full object-cover"
+                      src={user?.photoURL || avatarImg}
+                      alt=""
+                      referrerPolicy="no-referrer"
+                    />
+                    <span className="max-w-[110px] truncate text-sm font-medium text-white">
+                      {user?.displayName || 'Account'}
+                    </span>
+                    <AiOutlineDown size={10} className={`text-neutral-400 transition-transform ${open ? 'rotate-180' : ''}`} />
                   </button>
-                </>
-              ) : (
-                <Link to="/login" className="px-7 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase tracking-widest shadow-lg transition-all">
-                  Login
-                </Link>
-              )}
-            </div>
-
-            {/* PROFILE IMAGE & MOBILE TOGGLE */}
-            <div className="flex items-center gap-3">
-              {user && (
-                <img
-                  className="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover border-2 border-white/10 shadow-2xl"
-                  src={user?.photoURL || avatarImg}
-                  alt="profile"
-                />
-              )}
-
-              <div
-                onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden p-2 text-white bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-all"
+                )}
               >
-                {isOpen ? <AiOutlineClose size={24} /> : <AiOutlineMenu size={24} />}
-              </div>
+                {(close) => (
+                  <>
+                    <div className="border-b border-white/10 px-3 pb-3 pt-2">
+                      <p className="truncate text-sm font-semibold text-white">{user?.displayName || 'Signed in'}</p>
+                      {user?.email && <p className="truncate text-xs text-neutral-400">{user.email}</p>}
+                      {roleLabel && (
+                        <span className="mt-2 inline-block rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-neutral-200">
+                          {roleLabel}
+                        </span>
+                      )}
+                    </div>
+                    <div className="pt-1.5">
+                      <Link to="/dashboard" role="menuitem" onClick={close} className={menuItem}>
+                        Dashboard
+                      </Link>
+                      {!roleLabel && (
+                        <>
+                          <Link to="/hr-join" role="menuitem" onClick={close} className={menuItem}>
+                            Join as HR
+                          </Link>
+                          <Link to="/join" role="menuitem" onClick={close} className={menuItem}>
+                            Join as Employee
+                          </Link>
+                        </>
+                      )}
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          close()
+                          handleLogout()
+                        }}
+                        className={`${menuItem} text-red-400 hover:bg-red-500/10`}
+                      >
+                        Log out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </Dropdown>
             </div>
-          </div>
-        </div>
-      </div>
+          )}
 
-      {/* MOBILE MENU (Full Width Dropdown) */}
+          <button
+            type="button"
+            onClick={() => setIsOpen((v) => !v)}
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isOpen}
+            className="rounded-full bg-neutral-800 p-2.5 text-white transition-colors hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 lg:hidden"
+          >
+            {isOpen ? <AiOutlineClose size={18} /> : <AiOutlineMenu size={18} />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile panel */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-[#0b0b15]/98 backdrop-blur-3xl border-t border-white/5 overflow-hidden shadow-2xl"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+            className="mx-auto mt-2 max-w-[1480px] rounded-3xl border border-white/10 bg-neutral-950/95 p-3 shadow-2xl backdrop-blur-xl lg:hidden"
           >
-            <div className="px-8 py-10 flex flex-col gap-6 text-base font-bold tracking-widest uppercase">
-              <Link onClick={() => setIsOpen(false)} className="text-gray-300 hover:text-white" to="/">Home</Link>
-              {user && <Link onClick={() => setIsOpen(false)} className="text-gray-300 hover:text-white" to="/dashboard">Dashboard</Link>}
-              
-              <hr className="border-white/5 my-2" />
-              
-              {user ? (
-                <div className="flex flex-col gap-4">
-                  {role === 'hr' ? (
-                    <span className="text-indigo-400 text-sm">Role: You Are HR</span>
-                  ) : role === 'employee' ? (
-                    <span className="text-green-400 text-sm">Role: You Are Employee</span>
-                  ) : (
-                    <>
-                      <Link onClick={() => setIsOpen(false)} to="/hr" className="text-indigo-400">Join as HR</Link>
-                      <Link onClick={() => setIsOpen(false)} to="/join" className="text-white">Join as Employee</Link>
-                    </>
-                  )}
-                  <button onClick={handleLogout} className="text-left text-red-500 mt-2">Logout</button>
-                </div>
-              ) : (
-                <Link onClick={() => setIsOpen(false)} to="/login" className="bg-indigo-600 text-center py-3 rounded-xl text-white">Login</Link>
-              )}
+            <div className="flex flex-col gap-1">
+              {[
+                { to: '/', label: 'Home', end: true },
+                ...AUDIENCE.map((a) => ({ to: a.to, label: `For ${a.title.toLowerCase()}` })),
+                ...(user ? [{ to: '/dashboard', label: 'Dashboard' }] : []),
+                { to: '/legal', label: 'Legal' },
+              ].map(({ to, label, end }) => (
+                <NavLink
+                  key={to + label}
+                  to={to}
+                  end={end}
+                  onClick={() => setIsOpen(false)}
+                  className={({ isActive }) =>
+                    `rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors ${
+                      isActive ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5 hover:text-white'
+                    }`
+                  }
+                >
+                  {label}
+                </NavLink>
+              ))}
             </div>
+
+            <div className="my-3 border-t border-white/10" />
+
+            {user ? (
+              <div className="flex flex-col gap-1">
+                <div className="px-3 pb-2">
+                  <p className="truncate text-sm font-semibold text-white">{user?.displayName || 'Signed in'}</p>
+                  {user?.email && <p className="truncate text-xs text-neutral-400">{user.email}</p>}
+                  {roleLabel && (
+                    <span className="mt-2 inline-block rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-neutral-200">
+                      {roleLabel}
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-400 hover:bg-red-500/10"
+                >
+                  Log out
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setIsOpen(false)}
+                className="block rounded-full bg-white px-4 py-2.5 text-center text-sm font-medium text-neutral-950"
+              >
+                Get started
+              </Link>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </header>
   )
 }
 
