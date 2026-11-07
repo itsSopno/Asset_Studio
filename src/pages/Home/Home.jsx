@@ -1,5 +1,4 @@
 import LenisScroll from '../../../lenissmoothscrool' 
-import { motion } from 'framer-motion'
 import './home.css'
 import AboutAssetVerseScroll from '../../components/About/about'
 import TestimonialsStats from '../../components/Testimonila/Testimonial'
@@ -9,28 +8,9 @@ import Plans from '../../components/Plans/Plans'
 import AssetVerseHero from '../../components/AssetVerse/AssetVerse'
 import THANKS from '../../components/Thanks/thanks'
 
-const pageVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-  exit: { opacity: 0 },
-}
-
-const pageTransition = {
-  duration: 0.5,
-  ease: 'easeInOut',
-}
-
 const Home = () => {
   return (
-   
-    <motion.main
-      variants={pageVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      transition={pageTransition}
-      className="bg-[#05050a] text-white overflow-x-hidden" 
-    >
+    <main className="bg-[#05050a] text-white overflow-x-hidden">
       {/* ১. স্মুথ স্ক্রল সবার উপরে */}
       <LenisScroll />
 
@@ -66,17 +46,13 @@ const Home = () => {
         </motion.p>
       </motion.section> */}
 
-     
       <AssetVerseHero />
       <AboutAssetVerseScroll />
       <Plans />
       <SelectionProjectSection />
       <TestimonialsStats />
       <Questions />
-      
-     
-      
-    </motion.main>
+    </main>
   )
 }
 

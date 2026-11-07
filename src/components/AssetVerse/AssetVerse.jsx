@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import {
@@ -16,7 +17,7 @@ import {
   AiOutlineCheckCircle,
   AiOutlineSetting,
 } from 'react-icons/ai'
-import heroBackground from './hero.jpg'
+
 const SERIF = { fontFamily: "'Newsreader', Georgia, 'Times New Roman', serif" }
 
 const RETURNS = [
@@ -139,50 +140,64 @@ const DashboardMockup = () => (
  * bgImage: your background image (the dark rocks one). Falls back to a dark gradient.
  * ctaTo:   where the main button goes.
  */
+const BG_SOURCES = [
+  './hero.jpg', // local file (public/images/hero-bg.jpg)
+  'https://i.pinimg.com/1200x/f0/8e/35/f08e35de6d2615759c255a7e34bcba23.jpg', // backup link
+]
 const Hero = ({
-  bgImage = heroBackground,
+  bgImage = BG_SOURCES[0],
   ctaTo = '/login',
   ctaLabel = 'Get started',
   title = 'The all-in-one platform for company assets',
   subtitle = 'Track, assign and return every asset across your team. HR approves, employees request, and nothing gets lost.',
-}) => (
-  <section className="relative isolate overflow-hidden bg-black pt-36 text-white sm:pt-44">
-    {/* Background image + overlays */}
-    {bgImage && (
-      <img
-        src={bgImage}
-        alt=""
-        className="absolute inset-0 -z-20 h-full w-full object-cover object-bottom"
-      />
-    )}
-    <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black via-black/70 to-black/20" />
-    <div className="absolute -left-40 top-1/3 -z-10 h-[500px] w-[500px] rounded-full bg-orange-900/20 blur-[140px]" />
+  sources = BG_SOURCES,
+}) => {
+  const [imageIndex, setImageIndex] = useState(0)
 
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
-      className="mx-auto flex max-w-5xl flex-col items-center px-4 text-center"
-    >
-      <h1
-        className="text-[2.6rem] leading-[1.08] tracking-tight text-neutral-50 sm:text-6xl md:text-7xl"
-        style={SERIF}
-      >
-        {title}
-      </h1>
-      <p className="mt-7 max-w-md text-sm leading-relaxed text-neutral-300 sm:text-[15px]">{subtitle}</p>
-      <Link
-        to={ctaTo}
-        className="mt-8 inline-flex items-center rounded-full bg-white px-6 py-3 text-sm font-medium text-neutral-950 transition-colors hover:bg-neutral-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-      >
-        {ctaLabel}
-      </Link>
-    </motion.div>
+  const currentImage = bgImage || sources[imageIndex] || BG_SOURCES[0]
 
-    <div className="mt-20 px-3 sm:mt-24 sm:px-6">
-      <DashboardMockup />
-    </div>
-  </section>
-)
+  return (
+    <section className="relative isolate overflow-hidden bg-black pt-36 text-white sm:pt-44">
+      {/* Background image + overlays */}
+      {currentImage && (
+        <img
+          src={currentImage}
+          alt=""
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-bottom"
+          onError={() => {
+            setImageIndex((prevIndex) => (prevIndex + 1) % sources.length)
+          }}
+        />
+      )}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black via-black/70 to-black/20" />
+      <div className="absolute -left-40 top-1/3 -z-10 h-[500px] w-[500px] rounded-full bg-orange-900/20 blur-[140px]" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+        className="mx-auto flex max-w-5xl flex-col items-center px-4 text-center"
+      >
+        <h1
+          className="text-[2.6rem] leading-[1.08] tracking-tight text-neutral-50 sm:text-6xl md:text-7xl"
+          style={SERIF}
+        >
+          {title}
+        </h1>
+        <p className="mt-7 max-w-md text-sm leading-relaxed text-neutral-300 sm:text-[15px]">{subtitle}</p>
+        <Link
+          to={ctaTo}
+          className="mt-8 inline-flex items-center rounded-full bg-white px-6 py-3 text-sm font-medium text-neutral-950 transition-colors hover:bg-neutral-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+        >
+          {ctaLabel}
+        </Link>
+      </motion.div>
+
+      <div className="mt-20 px-3 sm:mt-24 sm:px-6">
+        <DashboardMockup />
+      </div>
+    </section>
+  )
+}
 
 export default Hero
