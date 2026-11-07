@@ -16,7 +16,7 @@ import {
   AiOutlineCheckCircle,
   AiOutlineSetting,
 } from 'react-icons/ai'
-
+import heroBackground from './hero.jpg'
 const SERIF = { fontFamily: "'Newsreader', Georgia, 'Times New Roman', serif" }
 
 const RETURNS = [
@@ -140,7 +140,7 @@ const DashboardMockup = () => (
  * ctaTo:   where the main button goes.
  */
 const Hero = ({
-  bgImage,
+  bgImage = heroBackground,
   ctaTo = '/login',
   ctaLabel = 'Get started',
   title = 'The all-in-one platform for company assets',
