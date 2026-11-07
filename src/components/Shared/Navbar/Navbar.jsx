@@ -10,7 +10,7 @@ import './nav.css'
 const ROLE_LABEL = { hr: 'HR Manager', employee: 'Employee' }
 
 const AUDIENCE = [
-  { to: '/hr-join', title: 'HR managers', desc: 'Add assets and approve requests' },
+  { to: '/hr', title: 'HR managers', desc: 'Add assets and approve requests' },
   { to: '/join', title: 'Employees', desc: 'Request and return assets' },
 ]
 
@@ -224,7 +224,7 @@ const Navbar = () => {
                       )}
                       {!roleLabel && (
                         <>
-                          <Link to="/hr-join" role="menuitem" onClick={close} className={menuItem}>
+                          <Link to="/hr" role="menuitem" onClick={close} className={menuItem}>
                             Join as HR
                           </Link>
                           <Link to="/join" role="menuitem" onClick={close} className={menuItem}>
