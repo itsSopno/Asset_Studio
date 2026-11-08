@@ -49,9 +49,9 @@ const Home = () => {
 
       <AssetVerseHero />
       <HowItWorks/>
-      <AboutAssetVerseScroll />
-      <Plans />
+       <Plans />
       <SelectionProjectSection />
+        <AboutAssetVerseScroll />
       <TestimonialsStats />
       <Questions />
     </main>
