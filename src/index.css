@@ -2,12 +2,14 @@
 @plugin "daisyui";
 
 
-:root{
-    background-color: black;
-    font-family: 'Playfair Display', serif;
+:root {
+  background-color: #05050a;
+  font-family: 'Playfair Display', serif;
 
 }
-html.lenis, html.lenis body {
+
+html.lenis,
+html.lenis body {
   height: auto;
 }
 
