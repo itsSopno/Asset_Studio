@@ -1,189 +1,149 @@
-import { Link, useNavigate } from "react-router";
-import { motion, AnimatePresence } from "framer-motion";
-
-import useAuth from "../../../hooks/useAuth";
-import useRole from "../../../hooks/useRole";
-
-import { useState } from "react";
+import { useNavigate } from 'react-router'
+import { useState } from 'react'
+import useAuth from '../../../hooks/useAuth'
+import useRole from '../../../hooks/useRole'
 
 // Icons
-import { AiOutlineBars } from "react-icons/ai";
-import { GrLogout } from "react-icons/gr";
-import { FiSettings } from "react-icons/fi";
-import { BsGraphUp } from "react-icons/bs";
-import { MdHome } from "react-icons/md";
-import { AiFillAppstore } from "react-icons/ai";
-import MenuItem from "./Menu/MenuItem";
-import AdminMenu from "./Menu/AdminMenu";
-import SellerMenu from "./Menu/SellerMenu";
-import CustomerMenu from "./Menu/CustomerMenu";
-import LoadingSpinner from "../../Shared/LoadingSpinner";
-import EmployeeMenu from "./Menu/SellerMenu";
+import { AiOutlineMenu, AiOutlineClose, AiOutlineAppstore } from 'react-icons/ai'
+import { GrLogout } from 'react-icons/gr'
+import { FiSettings } from 'react-icons/fi'
+import { MdHome } from 'react-icons/md'
+
+import MenuItem from './Menu/MenuItem'
+import AdminMenu from './Menu/AdminMenu'
+import CustomerMenu from './Menu/CustomerMenu'
+import EmployeeMenu from './Menu/SellerMenu'
+import LoadingSpinner from '../../Shared/LoadingSpinner'
+
+const SERIF = { fontFamily: "'Newsreader', Georgia, 'Times New Roman', serif" }
+
+const LogoMark = ({ size = 24 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 32 32"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="16" cy="16" r="13" />
+    <path d="M16 8 8.5 12v0L16 16l7.5-4L16 8Z" />
+    <path d="m8.5 16 7.5 4 7.5-4" />
+    <path d="m8.5 20 7.5 4 7.5-4" />
+  </svg>
+)
+
+const Brand = () => (
+  <span className="flex items-center gap-2 text-white">
+    <LogoMark />
+    <span className="text-[24px] leading-none tracking-tight" style={SERIF}>
+      assetverse
+    </span>
+  </span>
+)
+
+const footerBtn =
+  'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-neutral-400 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40'
 
 const Sidebar = () => {
-  const { logOut } = useAuth();
-  const [isActive, setActive] = useState(false);
-  const [role, isRoleLoading] = useRole();
-  const navigate = useNavigate();
+  const { logOut } = useAuth()
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [role, isRoleLoading] = useRole()
+  const navigate = useNavigate()
 
-  if (isRoleLoading) return <LoadingSpinner />;
+  if (isRoleLoading) return <LoadingSpinner />
 
-  const backhome = () => navigate("/");
+  const backhome = () => navigate('/')
 
   return (
     <>
       {/* MOBILE HEADER */}
-      <div className="md:hidden flex justify-between items-center px-5 py-4 bg-[#0f0f1c]/90 backdrop-blur-xl border-b border-white/10">
-        <h1 className="text-2xl font-extrabold tracking-wider bg-gradient-to-r 
-                     from-indigo-300 via-white to-indigo-300 
-                     bg-clip-text text-transparent drop-shadow-[0_0_18px_rgba(255,255,255,0.3)]">
-          ASSET<span className="text-indigo-400">VERSE</span>
-        </h1>
-        <button onClick={() => setActive(!isActive)} className="text-white">
-          <AiOutlineBars size={26} />
+      <div className="flex items-center justify-between border-b border-white/10 bg-black px-5 py-3.5 md:hidden">
+        <Brand />
+        <button
+          type="button"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open menu"
+          aria-expanded={mobileOpen}
+          className="rounded-full bg-neutral-800 p-2.5 text-white transition-colors hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+        >
+          <AiOutlineMenu size={18} />
         </button>
       </div>
 
+      {/* MOBILE BACKDROP */}
+      {mobileOpen && (
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden"
+        />
+      )}
+
       {/* SIDEBAR */}
-      <AnimatePresence>
-        <motion.div
-          initial={{ x: -260, rotateY: -15, opacity: 0 }}
-          animate={{ x: 0, rotateY: 0, opacity: 1 }}
-          exit={{ x: -260, opacity: 0 }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
-          className={`
-            fixed left-0 top-0 z-40 
-            w-72 h-screen flex flex-col justify-between
-            px-5 py-8 
-            bg-[#0c0c18]/95 backdrop-blur-2xl
-            shadow-[0_0_40px_rgba(80,80,255,0.4)]
-            border-r border-indigo-500/20
-            transform transition-all duration-300
-            ${isActive ? "-translate-x-full" : "translate-x-0"}
-            md:translate-x-0
-          `}
-        >
-          {/* GLASS OVERLAY GLOW */}
-          <div className="absolute inset-0 opacity-30 pointer-events-none 
-                          bg-gradient-to-b from-white/10 to-transparent blur-[100px]" />
-
-          {/* HEADER */}
-          <div className="relative mb-10 text-center">
-            <motion.h1
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="text-[26px] font-extrabold tracking-widest
-              bg-gradient-to-r from-indigo-300 via-white to-indigo-300 
-              bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(255,255,255,0.3)]"
+      <aside
+        aria-label="Dashboard sidebar"
+        className={`fixed left-0 top-0 z-40 flex h-screen w-72 flex-col justify-between border-r border-white/10 bg-neutral-950 px-4 py-6 transition-transform duration-300 md:translate-x-0 ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* TOP */}
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div className="mb-8 flex items-center justify-between px-2">
+            <Brand />
+            <button
+              type="button"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+              className="rounded-full p-2 text-neutral-400 transition-colors hover:bg-white/5 hover:text-white md:hidden"
             >
-              ASSET<span className="text-indigo-400">VERSE</span>
-            </motion.h1>
-
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: "60%" }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="h-[2px] bg-gradient-to-r from-indigo-500 to-indigo-300 mx-auto rounded-full"
-            />
+              <AiOutlineClose size={18} />
+            </button>
           </div>
 
-          {/* MENU AREA */}
-          <div className="flex flex-col gap-7 overflow-y-auto relative">
-
-            {/* ANIMATED SECTION TITLE */}
-            <motion.h2
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 0.8 }}
-              transition={{ duration: 0.4 }}
-              className="text-xs font-semibold tracking-[0.2em] text-indigo-200/70 pl-2"
-            >
-              MAIN PANEL
-            </motion.h2>
-
-            {/* DASHBOARD */}
-            <motion.div
-              whileHover={{ scale: 1.04, x: 8 }}
-              transition={{ type: "spring", stiffness: 200 }}
-            >
-                <MenuItem
-            icon={AiFillAppstore}
-            label="ASSETS lIST"
-            address="/dashboard/plantsi"
-          />
-            </motion.div>
-
-            {/* ROLE MENUS */}
-            <div className="flex flex-col gap-1">
-              {role === "customer" && <CustomerMenu />}
-              {role === "hr" && <AdminMenu />}
-              {role === "employee" && <EmployeeMenu />}
+          {/* MENU */}
+          <nav
+            aria-label="Dashboard"
+            className="flex-1 space-y-6 overflow-y-auto"
+            onClick={() => setMobileOpen(false)}
+          >
+            <div>
+              <h2 className="mb-2 px-3 text-xs font-medium text-neutral-500">Main</h2>
+              <MenuItem icon={AiOutlineAppstore} label="Assets list" address="/dashboard/plantsi" />
             </div>
 
-            {/* OPTIONAL BLOCK PLACEHOLDER */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="
-                bg-white/5 backdrop-blur-xl border border-white/10 
-                rounded-xl p-2 mt-4 shadow-[0_0_20px_rgba(255,255,255,0.08)]
-              "
-            >
-            </motion.div>
+            <div className="flex flex-col gap-1">
+              {role === 'customer' && <CustomerMenu />}
+              {role === 'hr' && <AdminMenu />}
+              {role === 'employee' && <EmployeeMenu />}
+            </div>
+          </nav>
+        </div>
+
+        {/* BOTTOM */}
+        <div className="mt-6 space-y-1 border-t border-white/10 pt-4">
+          <div onClick={() => setMobileOpen(false)}>
+            <MenuItem icon={FiSettings} label="Profile settings" address="/dashboard/profile" />
           </div>
-
-          {/* FOOTER AREA */}
-          <div className="mt-8 border-t border-white/10 pt-6 flex flex-col gap-4">
-
-            {/* SETTINGS */}
-            <motion.div whileHover={{ scale: 1.03, x: 8 }}>
-              <MenuItem
-                icon={FiSettings}
-                label="Profile Settings"
-                address="/dashboard/profile"
-              />
-            </motion.div>
-
-            {/* LOGOUT */}
-            <motion.button
-              whileHover={{ scale: 1.05, x: 6 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={logOut}
-              className="
-                flex items-center gap-3 w-full
-                px-5 py-3 rounded-xl
-                bg-indigo-500/10 hover:bg-indigo-500/20 
-                text-white/80 hover:text-white 
-                backdrop-blur-lg border border-indigo-300/10 
-                transition-all duration-200
-              "
-            >
-              <GrLogout />
-              <span className="font-medium tracking-wide">Logout</span>
-            </motion.button>
-
-            {/* HOME BUTTON */}
-            <motion.button
-              whileHover={{ scale: 1.05, x: 6 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={backhome}
-              className="
-                flex items-center gap-3 w-full
-                px-5 py-3 rounded-xl
-                bg-indigo-500/10 hover:bg-indigo-500/20 
-                text-white/80 hover:text-white 
-                backdrop-blur-lg border border-indigo-300/10 
-                transition-all duration-200
-              "
-            >
-              <MdHome />
-              HOME
-            </motion.button>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+          <button type="button" onClick={backhome} className={footerBtn}>
+            <MdHome size={18} aria-hidden="true" />
+            Home
+          </button>
+          <button
+            type="button"
+            onClick={logOut}
+            className={`${footerBtn} hover:bg-red-500/10 hover:text-red-400`}
+          >
+            <GrLogout size={16} aria-hidden="true" />
+            Log out
+          </button>
+        </div>
+      </aside>
     </>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar
