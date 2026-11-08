@@ -102,12 +102,12 @@ const AboutAssetVerse = () => (
       {/* Images */}
       <div className="relative pb-12 sm:pb-16">
         <ImageTile
-          sources={['/images/about/website.jpg']}
+          sources={['https://i.pinimg.com/736x/0a/47/ff/0a47ffa8e05de1e794a7412ae14752b2.jpg']}
           fallbackIcon={FaDesktop}
           className="ml-auto aspect-[4/3] w-[88%]"
         />
         <ImageTile
-          sources={['/images/about/company.jpg']}
+          sources={['https://i.pinimg.com/736x/70/ea/21/70ea215059f2b17a065a887fd911bff9.jpg']}
           fallbackIcon={FaBuilding}
           className="absolute bottom-0 left-0 aspect-[4/3] w-[52%] border-4 border-black shadow-2xl shadow-black/60"
         />

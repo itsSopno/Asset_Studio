@@ -23,7 +23,7 @@ const EMPLOYEE_STEPS = [
   Put your image at: public/images/how-it-works.jpg  (about 1400x600)
   A second source can be added as a backup. If all fail, a placeholder shows.
 */
-const IMAGE_SOURCES = ['https://i.pinimg.com/1200x/f0/8e/35/f08e35de6d2615759c255a7e34bcba23.jpg']
+const IMAGE_SOURCES = ['https://i.pinimg.com/736x/45/69/f8/4569f810d60c39157959a8c34ed496ab.jpg']
 
 const HeroImage = ({ sources = IMAGE_SOURCES }) => {
   const [index, setIndex] = useState(0)
