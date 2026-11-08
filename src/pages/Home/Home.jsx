@@ -7,6 +7,7 @@ import SelectionProjectSection from '../../components/SelectionProjectSection/Se
 import Plans from '../../components/Plans/Plans'
 import AssetVerseHero from '../../components/AssetVerse/AssetVerse'
 import THANKS from '../../components/Thanks/thanks'
+import HowItWorks from '../../components/HowitWork/howitwork'
 
 const Home = () => {
   return (
@@ -47,6 +48,7 @@ const Home = () => {
       </motion.section> */}
 
       <AssetVerseHero />
+      <HowItWorks/>
       <AboutAssetVerseScroll />
       <Plans />
       <SelectionProjectSection />
