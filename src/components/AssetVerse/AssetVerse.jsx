@@ -158,7 +158,6 @@ const Hero = ({
         />
       )}
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black via-black/70 to-black/20" />
-      <div className="absolute -left-40 top-1/3 -z-10 h-[500px] w-[500px] rounded-full bg-orange-900/20 blur-[140px]" />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}

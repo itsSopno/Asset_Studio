@@ -86,7 +86,6 @@ const StepList = ({ label, title, steps, cta }) => (
 
 const HowItWorks = () => (
   <div className="relative isolate overflow-hidden bg-black px-4 pb-20 pt-32 text-white sm:px-6 sm:pb-24">
-    <div className="absolute -left-40 top-20 -z-10 h-[500px] w-[500px] rounded-full bg-orange-900/20 blur-[140px]" />
 
     <motion.div
       initial={{ opacity: 0, y: 16 }}

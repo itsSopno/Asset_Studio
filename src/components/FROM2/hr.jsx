@@ -89,7 +89,6 @@ const HRForm = () => {
 
   return (
     <div className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-black px-4 py-24">
-      <div className="absolute -right-40 top-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-orange-900/20 blur-[140px]" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
