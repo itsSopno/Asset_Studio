@@ -57,7 +57,7 @@ const EmployeeDashboard = () => {
   return (
     <section
       ref={container}
-      className="min-h-screen p-8 bg-[#0B0F19] text-gray-200"
+      className="min-h-screen p-8 bg-black text-gray-200"
     >
       {/* Header */}
       <header className="mb-10">
